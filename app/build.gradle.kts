@@ -1,10 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-//    kotlin("android")
     kotlin("kapt")
-//    id("com.google.dagger.hilt.android") // Apply the Hilt plugin
     alias(libs.plugins.hilt) // Reference from the version catalog
+}
+
+kapt{
+    correctErrorTypes = true
+}
+
+hilt {
+    enableAggregatingTask = false
 }
 
 android {
@@ -54,11 +60,11 @@ android {
     buildToolsVersion = "35.0.0"
 }
 
-configurations.all {
-    resolutionStrategy {
-        force("com.squareup:javapoet:1.13.0") // Force the latest version
-    }
-}
+//configurations.all {
+//    resolutionStrategy {
+//        force("com.squareup:javapoet:1.13.0") // Force the latest version
+//    }
+//}
 
 dependencies {
 
@@ -70,8 +76,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.room.common)
+    // Room
+    implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
+
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.runtime.livedata)
@@ -86,7 +95,6 @@ dependencies {
 
     implementation(libs.hilt.android) // Use Hilt Android library from version catalogs
     kapt(libs.hilt.compiler) // Use Hilt compiler for annotation processing
-    implementation(libs.hilt.androidx.navigation) // Optional: For Hilt navigation support
     implementation(libs.hilt.navigation.compose)
     implementation(libs.javapoet)
 

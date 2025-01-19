@@ -17,12 +17,21 @@ interface FitnessDao {
     suspend fun insertUser(user: User)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertExercise(exercise: Exercise)
+    suspend fun insertExercise(exercise: Exercise) : Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUserExerciseCrossRef(crossRef: UserExerciseCrossRef)
 
     @Transaction
-    @Query("Select * from User Where userId = :userId")
-    fun getUserWithExercises(userId: Int): Flow<List<UserWithExercises>>
+    @Query("SELECT * FROM User WHERE userId = :userId")
+    fun getUserWithExercises(userId: Int): Flow<UserWithExercises>
+
+    @Transaction
+    @Query("SELECT * FROM User")
+    fun getAllUsers(): Flow<List<User>>
+
+    @Transaction
+    @Query("SELECT * FROM User WHERE userId = :userId LIMIT 1")
+    suspend fun getUserById(userId: Int): User?
+
 }
