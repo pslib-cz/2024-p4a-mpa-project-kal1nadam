@@ -9,21 +9,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.fitnesstracker.data.model.UserWithExercises
 import com.example.fitnesstracker.viewmodel.HomeViewModel
 import com.example.fitnesstracker.viewmodel.StepCounterViewModel
 
@@ -36,6 +38,7 @@ fun HomeScreen(
     val userList by viewModel.users.collectAsState()
 
     var newUserName by remember { mutableStateOf("") }
+    var newExerciseName by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -72,6 +75,46 @@ fun HomeScreen(
                         }
                         .padding(8.dp)
                 )
+            }
+        }
+
+        // --- ADD NEW EXERCISE ---
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextField(
+                value = newExerciseName,
+                onValueChange = { newExerciseName = it },
+                label = { Text("New Exercise Name") },
+                modifier = Modifier.weight(1f)
+            )
+            Button(onClick = {
+                if (newExerciseName.isNotBlank()) {
+                    viewModel.addExercise(newExerciseName.trim(), "", 10)
+                    newExerciseName = ""
+                }
+            }) {
+                Text("Add Exercise")
+            }
+        }
+
+        val exerciseList by viewModel.exercises.collectAsState()
+
+        // --- LIST ALL EXERCISES ---
+        LazyColumn {
+            items(exerciseList) { exercise ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Exercise: ${exercise.name}")
+                    IconButton(onClick = { viewModel.deleteExercise(exercise) }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete Exercise"
+                        )
+                    }
+                }
             }
         }
 

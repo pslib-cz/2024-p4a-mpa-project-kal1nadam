@@ -4,13 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitnesstracker.data.db.FitnessDao
 import com.example.fitnesstracker.data.model.Exercise
+import com.example.fitnesstracker.data.model.User
 import com.example.fitnesstracker.data.model.UserExerciseCrossRef
-import com.example.fitnesstracker.data.model.UserWithExercises
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,29 +20,36 @@ class AddExerciseViewModel @Inject constructor(
     private val dao: FitnessDao
 ) : ViewModel() {
 
-    /**
-     * Observe user + exercises as a Flow, so Compose can re-render when data changes.
-     */
-    fun getUserWithExercises(userId: Int): Flow<UserWithExercises> {
-        return dao.getUserWithExercises(userId)
-    }
+    // Fetch all exercises
+    val exercises: StateFlow<List<Exercise>> =
+        dao.getAllExercises()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    /**
-     * Insert a new Exercise, then link it to the user via cross-ref.
-     */
-    fun addExerciseForUser(userId: Int, exerciseName: String) {
+
+    // Cross-references for a specific user
+    fun getCrossRefsForUser(userId: Int): StateFlow<List<UserExerciseCrossRef>> =
+        dao.getCrossRefsForUser(userId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+
+    // Create a cross-reference
+    fun connectExerciseToUser(userId: Int, exerciseId: Int) {
         viewModelScope.launch {
-            // Insert new exercise
-            val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-            val exerciseId = dao.insertExercise(Exercise(name = exerciseName, date = dateTime, durationMinutes = 10))
-
-            // Insert cross-ref
             dao.insertUserExerciseCrossRef(
-                UserExerciseCrossRef(
-                    userId = userId,
-                    exerciseId = exerciseId.toString().toInt()
-                )
+                UserExerciseCrossRef(userId = userId, exerciseId = exerciseId)
             )
         }
     }
+
+    // Disconnect exercise from user
+    fun disconnectExerciseFromUser(userId: Int, exerciseId: Int) {
+        viewModelScope.launch {
+            dao.deleteUserExerciseCrossRef(userId, exerciseId)
+        }
+    }
+
+    suspend fun getUserName(userId: Int): String? {
+        return dao.getUserById(userId)?.name
+    }
+
 }

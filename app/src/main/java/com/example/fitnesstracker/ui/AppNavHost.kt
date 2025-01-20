@@ -23,7 +23,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             )
         }
 
-        // ADD-EXERCISE
+        // Add Exercise
         composable(
             route = "addExercise/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.IntType })
