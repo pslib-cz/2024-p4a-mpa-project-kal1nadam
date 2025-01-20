@@ -31,12 +31,10 @@ class HomeViewModel @Inject constructor(private val dao: FitnessDao) : ViewModel
             dao.insertUser(User(name = name))
         }
     }
-//    val userWithExercises: LiveData<List<UserWithExercises>> = dao.getUserWithExercises(userId = 1).asLiveData()
-//
-//    fun addExercise(exercise: Exercise){
-//        viewModelScope.launch {
-//            dao.insertExercise(exercise)
-//            dao.insertUserExerciseCrossRef(UserExerciseCrossRef(userId = 1, exerciseId = exercise.exerciseId))
-//        }
-//    }
+
+    fun addExercise(name: String, date: String, duration: Int) {
+        viewModelScope.launch {
+            dao.insertExercise(Exercise(name = name, date = date, durationMinutes = duration))
+        }
+    }
 }

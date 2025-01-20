@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -24,9 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.fitnesstracker.data.model.UserWithExercises
 import com.example.fitnesstracker.viewmodel.HomeViewModel
+import com.example.fitnesstracker.viewmodel.StepCounterViewModel
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onUserClicked: (Int) -> Unit
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    stepCounterViewModel: StepCounterViewModel = hiltViewModel(),
+    onUserClicked: (Int) -> Unit
 ){
     val userList by viewModel.users.collectAsState()
 
@@ -69,16 +74,15 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), onUserClicked: (Int) 
                 )
             }
         }
+
+        val stepCount by stepCounterViewModel.stepCount.collectAsState()
+
+        // Display Step Count
+        Text(
+            text = "Steps: $stepCount",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(8.dp)
+        )
+
     }
 }
-
-//@Composable
-//fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
-//    val exercises by viewModel.userWithExercises.observeAsState(emptyList())
-//
-//    LazyColumn {
-//        items(exercises) { exercise ->
-//            Text("${exercise.name} - ${exercise.durationMinutes} minutes")
-//        }
-//    }
-//}

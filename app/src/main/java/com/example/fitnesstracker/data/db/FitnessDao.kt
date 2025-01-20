@@ -26,6 +26,11 @@ interface FitnessDao {
     @Query("SELECT * FROM User WHERE userId = :userId")
     fun getUserWithExercises(userId: Int): Flow<UserWithExercises>
 
+    // Get all exercises
+    @Transaction
+    @Query("SELECT * FROM Exercise")
+    fun getAllExercises(): Flow<List<Exercise>>
+
     @Transaction
     @Query("SELECT * FROM User")
     fun getAllUsers(): Flow<List<User>>
